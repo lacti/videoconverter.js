@@ -45,12 +45,13 @@ typedef struct MJpegDecodeContext {
     AVClass *class;
     AVCodecContext *avctx;
     GetBitContext gb;
+    int buf_size;
 
     int start_code; /* current start code */
     int buffer_size;
     uint8_t *buffer;
 
-    int16_t quant_matrixes[4][64];
+    uint16_t quant_matrixes[4][64];
     VLC vlcs[3][4];
     int qscale[4];      ///< quantizer scale calculated from quant_matrixes
 

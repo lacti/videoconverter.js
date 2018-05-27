@@ -343,7 +343,7 @@ static inline int16_t adpcm_yamaha_expand_nibble(ADPCMChannelStatus *c, uint8_t 
     c->predictor += (c->step * ff_adpcm_yamaha_difflookup[nibble]) / 8;
     c->predictor = av_clip_int16(c->predictor);
     c->step = (c->step * ff_adpcm_yamaha_indexscale[nibble]) >> 8;
-    c->step = av_clip(c->step, 127, 24567);
+    c->step = av_clip(c->step, 127, 24576);
     return c->predictor;
 }
 
@@ -909,8 +909,8 @@ static int adpcm_decode_frame(AVCodecContext *avctx, void *data,
     case AV_CODEC_ID_ADPCM_MTAF:
         for (channel = 0; channel < avctx->channels; channel+=2) {
             bytestream2_skipu(&gb, 4);
-            c->status[channel    ].step      = bytestream2_get_le16u(&gb);
-            c->status[channel + 1].step      = bytestream2_get_le16u(&gb);
+            c->status[channel    ].step      = bytestream2_get_le16u(&gb) & 0x1f;
+            c->status[channel + 1].step      = bytestream2_get_le16u(&gb) & 0x1f;
             c->status[channel    ].predictor = sign_extend(bytestream2_get_le16u(&gb), 16);
             bytestream2_skipu(&gb, 2);
             c->status[channel + 1].predictor = sign_extend(bytestream2_get_le16u(&gb), 16);

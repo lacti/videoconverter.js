@@ -27,6 +27,7 @@
 
 #include <stdio.h>
 
+#include "libavutil/avassert.h"
 #include "libavutil/imgutils.h"
 #include "libavutil/internal.h"
 #include "libavutil/intreadwrite.h"
@@ -54,6 +55,7 @@ enum TransposeDir {
 typedef struct TransContext {
     const AVClass *class;
     int hsub, vsub;
+    int planes;
     int pixsteps[4];
 
     int passthrough;    ///< PassthroughType, landscape passthrough mode enabled
@@ -106,6 +108,10 @@ static int config_props_output(AVFilterLink *outlink)
 
     s->hsub = desc_in->log2_chroma_w;
     s->vsub = desc_in->log2_chroma_h;
+    s->planes = av_pix_fmt_count_planes(outlink->format);
+
+    av_assert0(desc_in->nb_components == desc_out->nb_components);
+
 
     av_image_fill_max_pixsteps(s->pixsteps, NULL, desc_out);
 
@@ -148,7 +154,7 @@ static int filter_slice(AVFilterContext *ctx, void *arg, int jobnr,
     AVFrame *in = td->in;
     int plane;
 
-    for (plane = 0; out->data[plane]; plane++) {
+    for (plane = 0; plane < s->planes; plane++) {
         int hsub    = plane == 1 || plane == 2 ? s->hsub : 0;
         int vsub    = plane == 1 || plane == 2 ? s->vsub : 0;
         int pixstep = s->pixsteps[plane];
@@ -250,7 +256,7 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
     }
 
     td.in = in, td.out = out;
-    ctx->internal->execute(ctx, filter_slice, &td, NULL, FFMIN(outlink->h, ctx->graph->nb_threads));
+    ctx->internal->execute(ctx, filter_slice, &td, NULL, FFMIN(outlink->h, ff_filter_get_nb_threads(ctx)));
     av_frame_free(&in);
     return ff_filter_frame(outlink, out);
 }
@@ -260,10 +266,10 @@ static int filter_frame(AVFilterLink *inlink, AVFrame *in)
 
 static const AVOption transpose_options[] = {
     { "dir", "set transpose direction", OFFSET(dir), AV_OPT_TYPE_INT, { .i64 = TRANSPOSE_CCLOCK_FLIP }, 0, 7, FLAGS, "dir" },
-        { "cclock_flip", "rotate counter-clockwise with vertical flip", 0, AV_OPT_TYPE_CONST, { .i64 = TRANSPOSE_CCLOCK_FLIP }, .unit = "dir" },
-        { "clock",       "rotate clockwise",                            0, AV_OPT_TYPE_CONST, { .i64 = TRANSPOSE_CLOCK       }, .unit = "dir" },
-        { "cclock",      "rotate counter-clockwise",                    0, AV_OPT_TYPE_CONST, { .i64 = TRANSPOSE_CCLOCK      }, .unit = "dir" },
-        { "clock_flip",  "rotate clockwise with vertical flip",         0, AV_OPT_TYPE_CONST, { .i64 = TRANSPOSE_CLOCK_FLIP  }, .unit = "dir" },
+        { "cclock_flip", "rotate counter-clockwise with vertical flip", 0, AV_OPT_TYPE_CONST, { .i64 = TRANSPOSE_CCLOCK_FLIP }, .flags=FLAGS, .unit = "dir" },
+        { "clock",       "rotate clockwise",                            0, AV_OPT_TYPE_CONST, { .i64 = TRANSPOSE_CLOCK       }, .flags=FLAGS, .unit = "dir" },
+        { "cclock",      "rotate counter-clockwise",                    0, AV_OPT_TYPE_CONST, { .i64 = TRANSPOSE_CCLOCK      }, .flags=FLAGS, .unit = "dir" },
+        { "clock_flip",  "rotate clockwise with vertical flip",         0, AV_OPT_TYPE_CONST, { .i64 = TRANSPOSE_CLOCK_FLIP  }, .flags=FLAGS, .unit = "dir" },
 
     { "passthrough", "do not apply transposition if the input matches the specified geometry",
       OFFSET(passthrough), AV_OPT_TYPE_INT, {.i64=TRANSPOSE_PT_TYPE_NONE},  0, INT_MAX, FLAGS, "passthrough" },

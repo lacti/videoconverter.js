@@ -267,6 +267,8 @@ static int decode_picture_header(AVCodecContext *avctx, const uint8_t *buf, cons
                                                                         \
         if (q > switch_bits) { /* exp golomb */                         \
             bits = exp_order - switch_bits + (q<<1);                    \
+            if (bits > FFMIN(MIN_CACHE_BITS, 31))                       \
+                return AVERROR_INVALIDDATA;                             \
             val = SHOW_UBITS(re, gb, bits) - (1 << exp_order) +         \
                 ((switch_bits + 1) << rice_order);                      \
             SKIP_BITS(re, gb, bits);                                    \
@@ -286,7 +288,7 @@ static int decode_picture_header(AVCodecContext *avctx, const uint8_t *buf, cons
 
 static const uint8_t dc_codebook[7] = { 0x04, 0x28, 0x28, 0x4D, 0x4D, 0x70, 0x70};
 
-static av_always_inline void decode_dc_coeffs(GetBitContext *gb, int16_t *out,
+static av_always_inline int decode_dc_coeffs(GetBitContext *gb, int16_t *out,
                                               int blocks_per_slice)
 {
     int16_t prev_dc;
@@ -310,6 +312,7 @@ static av_always_inline void decode_dc_coeffs(GetBitContext *gb, int16_t *out,
         out[0] = prev_dc;
     }
     CLOSE_READER(re, gb);
+    return 0;
 }
 
 // adaptive codebook switching lut according to previous run/level values
@@ -376,7 +379,8 @@ static int decode_slice_luma(AVCodecContext *avctx, SliceContext *slice,
 
     init_get_bits(&gb, buf, buf_size << 3);
 
-    decode_dc_coeffs(&gb, blocks, blocks_per_slice);
+    if ((ret = decode_dc_coeffs(&gb, blocks, blocks_per_slice)) < 0)
+        return ret;
     if ((ret = decode_ac_coeffs(avctx, &gb, blocks, blocks_per_slice)) < 0)
         return ret;
 
@@ -409,7 +413,8 @@ static int decode_slice_chroma(AVCodecContext *avctx, SliceContext *slice,
 
     init_get_bits(&gb, buf, buf_size << 3);
 
-    decode_dc_coeffs(&gb, blocks, blocks_per_slice);
+    if ((ret = decode_dc_coeffs(&gb, blocks, blocks_per_slice)) < 0)
+        return ret;
     if ((ret = decode_ac_coeffs(avctx, &gb, blocks, blocks_per_slice)) < 0)
         return ret;
 
@@ -614,14 +619,19 @@ static int decode_picture(AVCodecContext *avctx)
 {
     ProresContext *ctx = avctx->priv_data;
     int i;
+    int error = 0;
 
     avctx->execute2(avctx, decode_slice_thread, NULL, NULL, ctx->slice_count);
 
     for (i = 0; i < ctx->slice_count; i++)
-        if (ctx->slices[i].ret < 0)
-            return ctx->slices[i].ret;
+        error += ctx->slices[i].ret < 0;
 
-    return 0;
+    if (error)
+        av_frame_set_decode_error_flags(ctx->frame, FF_DECODE_ERROR_INVALID_BITSTREAM);
+    if (error < ctx->slice_count)
+        return 0;
+
+    return ctx->slices[0].ret;
 }
 
 static int decode_frame(AVCodecContext *avctx, void *data, int *got_frame,

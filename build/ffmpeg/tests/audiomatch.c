@@ -37,7 +37,7 @@ int main(int argc, char **argv){
     FILE *f[2];
     int i, pos;
     int siglen, datlen;
-    int bestpos;
+    int bestpos = 0;
     double bestc=0;
     double sigamp= 0;
     int16_t *signal, *data;
@@ -107,4 +107,6 @@ int main(int argc, char **argv){
         }
     }
     printf("presig: %d postsig:%d c:%7.4f lenerr:%d\n", bestpos, datlen - siglen - bestpos, bestc / sigamp, datlen - siglen);
+
+    return 0;
 }
