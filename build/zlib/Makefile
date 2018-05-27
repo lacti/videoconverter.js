@@ -16,7 +16,7 @@
 # To install in $HOME instead of /usr/local, use:
 #    make install prefix=$HOME
 
-CC=/Users/pbergero/source/emsdk_portable/emscripten/1.35.0/emcc
+CC=/home/lacti/git/emsdk-portable/emscripten/tag-1.37.10/emcc
 
 CFLAGS= -D_LARGEFILE64_SOURCE=1
 #CFLAGS=-O -DMAX_WBITS=14 -DMAX_MEM_LEVEL=7
@@ -27,8 +27,8 @@ CFLAGS= -D_LARGEFILE64_SOURCE=1
 SFLAGS= -D_LARGEFILE64_SOURCE=1
 LDFLAGS= -L. libz.a
 TEST_LDFLAGS=-L. libz.a
-LDSHARED=/Users/pbergero/source/emsdk_portable/emscripten/1.35.0/emcc
-CPP=/Users/pbergero/source/emsdk_portable/emscripten/1.35.0/emcc -E
+LDSHARED=/home/lacti/git/emsdk-portable/emscripten/tag-1.37.10/emcc
+CPP=/home/lacti/git/emsdk-portable/emscripten/tag-1.37.10/emcc -E
 
 STATICLIB=libz.a
 SHAREDLIB=
@@ -36,15 +36,15 @@ SHAREDLIBV=
 SHAREDLIBM=
 LIBS=$(STATICLIB) $(SHAREDLIBV)
 
-AR=/Users/pbergero/source/emsdk_portable/emscripten/1.35.0/emar rc
-RANLIB=/Users/pbergero/source/emsdk_portable/emscripten/1.35.0/emranlib
+AR=/home/lacti/git/emsdk-portable/emscripten/tag-1.37.10/emar rc
+RANLIB=/home/lacti/git/emsdk-portable/emscripten/tag-1.37.10/emranlib
 LDCONFIG=ldconfig
 LDSHAREDLIBC=-lc
 TAR=tar
 SHELL=/bin/sh
 EXE=
 
-prefix =/Users/pbergero/source/videoconverter.js/build/zlib/../dist
+prefix =/home/lacti/git/videoconverter.js-wasm/build/zlib/../dist
 exec_prefix =${prefix}
 libdir =${exec_prefix}/lib
 sharedlibdir =${libdir}

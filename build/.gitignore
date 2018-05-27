@@ -1,0 +1,3 @@
+ffmpeg/*.bak
+ffmpeg/doc/examples/
+zlib/ztest*.js
