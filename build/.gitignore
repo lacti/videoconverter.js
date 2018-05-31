@@ -21,3 +21,8 @@ ffmpeg/libavutil/libavutil.version
 ffmpeg/libswresample/libswresample.version
 ffmpeg/libswscale/libswscale.version
 
+# others
+libvpx/libs-generic-gnu.mk.bak
+zlib/ztest23279
+zlib/ztest23279.c
+
