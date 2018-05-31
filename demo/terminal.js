@@ -2,6 +2,7 @@
 var worker;
 var sampleImageData;
 var sampleVideoData;
+var sampleListData;
 var outputElement;
 var filesElement;
 var running = false;
@@ -11,7 +12,7 @@ var isSupported = (function() {
 })();
 
 function isReady() {
-  return !running && isWorkerLoaded && sampleImageData && sampleVideoData;
+  return !running && isWorkerLoaded && sampleImageData && sampleVideoData && sampleListData;
 }
 
 function startRunning() {
@@ -49,6 +50,7 @@ function retrieveSampleVideo() {
     var arrayBuffer = oReq.response;
     if (arrayBuffer) {
       sampleVideoData = new Uint8Array(arrayBuffer);
+      sampleListData = "file 'input.webm'\nfile 'input.webm'";
     }
   };
 
@@ -89,6 +91,10 @@ function runCommand(text) {
           {
             "name": "input.webm",
             "data": sampleVideoData
+          },
+          {
+            "name": "input.txt",
+            "data": sampleListData
           }
         ]
       });
@@ -104,6 +110,10 @@ function runCommand(text) {
           {
             "name": "input.webm",
             "data": sampleVideoData
+          },
+          {
+            "name": "input.txt",
+            "data": sampleListData
           }
         ]
       });

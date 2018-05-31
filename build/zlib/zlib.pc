@@ -1,4 +1,4 @@
-prefix=/home/lacti/git/videoconverter.js-wasm/build/zlib/../dist
+prefix=/data/vc/videoconverter.js/build/zlib/../dist
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 sharedlibdir=${libdir}

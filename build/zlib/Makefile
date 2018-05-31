@@ -16,7 +16,7 @@
 # To install in $HOME instead of /usr/local, use:
 #    make install prefix=$HOME
 
-CC=/home/lacti/git/emsdk-portable/emscripten/tag-1.37.10/emcc
+CC=/data/emsdk/emscripten/tag-1.37.39/emcc
 
 CFLAGS= -D_LARGEFILE64_SOURCE=1
 #CFLAGS=-O -DMAX_WBITS=14 -DMAX_MEM_LEVEL=7
@@ -27,24 +27,24 @@ CFLAGS= -D_LARGEFILE64_SOURCE=1
 SFLAGS= -D_LARGEFILE64_SOURCE=1
 LDFLAGS= -L. libz.a
 TEST_LDFLAGS=-L. libz.a
-LDSHARED=/home/lacti/git/emsdk-portable/emscripten/tag-1.37.10/emcc
-CPP=/home/lacti/git/emsdk-portable/emscripten/tag-1.37.10/emcc -E
+LDSHARED=/data/emsdk/emscripten/tag-1.37.39/emcc
+CPP=/data/emsdk/emscripten/tag-1.37.39/emcc -E
 
 STATICLIB=libz.a
-SHAREDLIB=
-SHAREDLIBV=
-SHAREDLIBM=
+SHAREDLIB=libz.so
+SHAREDLIBV=libz.so.1.2.5
+SHAREDLIBM=libz.so.1
 LIBS=$(STATICLIB) $(SHAREDLIBV)
 
-AR=/home/lacti/git/emsdk-portable/emscripten/tag-1.37.10/emar rc
-RANLIB=/home/lacti/git/emsdk-portable/emscripten/tag-1.37.10/emranlib
+AR=/data/emsdk/emscripten/tag-1.37.39/emar rc
+RANLIB=/data/emsdk/emscripten/tag-1.37.39/emranlib
 LDCONFIG=ldconfig
 LDSHAREDLIBC=-lc
 TAR=tar
 SHELL=/bin/sh
 EXE=
 
-prefix =/home/lacti/git/videoconverter.js-wasm/build/zlib/../dist
+prefix =/data/vc/videoconverter.js/build/zlib/../dist
 exec_prefix =${prefix}
 libdir =${exec_prefix}/lib
 sharedlibdir =${libdir}
@@ -67,7 +67,7 @@ OBJS = $(OBJC) $(OBJA)
 
 PIC_OBJS = $(PIC_OBJC) $(PIC_OBJA)
 
-all: static all64
+all: static shared all64
 
 static: example$(EXE) minigzip$(EXE)
 
@@ -77,7 +77,7 @@ all64: example64$(EXE) minigzip64$(EXE)
 
 check: test
 
-test: all teststatic test64
+test: all teststatic testshared test64
 
 teststatic: static
 	@if echo hello world | ./minigzip | ./minigzip -d && ./example; then \

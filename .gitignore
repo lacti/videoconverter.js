@@ -4,6 +4,7 @@ thumbs.db
 
 *.o
 *.d
+*.swp
 
 
 build/dist

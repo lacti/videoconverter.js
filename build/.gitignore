@@ -1,3 +1,8 @@
 ffmpeg/*.bak
 ffmpeg/doc/examples/
 zlib/ztest*.js
+zlib/*.lo
+zlib/*.so*
+zlib/*sh
+*.log
+
