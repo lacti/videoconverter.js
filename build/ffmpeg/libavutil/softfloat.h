@@ -51,8 +51,7 @@ static const SoftFloat FLOAT_MIN        = { 0x20000000,   MIN_EXP};
  */
 static inline av_const double av_sf2double(SoftFloat v) {
     v.exp -= ONE_BITS +1;
-    if(v.exp > 0) return (double)v.mant * (double)(1 << v.exp);
-    else          return (double)v.mant / (double)(1 << (-v.exp));
+    return ldexp(v.mant, v.exp);
 }
 
 static av_const SoftFloat av_normalize_sf(SoftFloat a){

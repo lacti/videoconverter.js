@@ -237,9 +237,9 @@ static void dequantize_slice_buffered(SnowContext *s, slice_buffer * sb, SubBand
         for(x=0; x<w; x++){
             int i= line[x];
             if(i<0){
-                line[x]= -((-i*qmul + qadd)>>(QEXPSHIFT)); //FIXME try different bias
+                line[x]= -((-i*(unsigned)qmul + qadd)>>(QEXPSHIFT)); //FIXME try different bias
             }else if(i>0){
-                line[x]=  (( i*qmul + qadd)>>(QEXPSHIFT));
+                line[x]=  (( i*(unsigned)qmul + qadd)>>(QEXPSHIFT));
             }
         }
     }
@@ -529,13 +529,11 @@ static int decode_frame(AVCodecContext *avctx, void *data, int *got_frame,
             }
         }
 
-        {
         for(level=0; level<s->spatial_decomposition_count; level++){
             for(orientation=level ? 1 : 0; orientation<4; orientation++){
                 SubBand *b= &p->band[level][orientation];
                 unpack_coeffs(s, b, b->parent, orientation);
             }
-        }
         }
 
         {

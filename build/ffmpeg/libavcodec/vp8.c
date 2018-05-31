@@ -606,8 +606,6 @@ static int vp7_decode_frame_header(VP8Context *s, const uint8_t *buf, int buf_si
             s->fade_present = vp8_rac_get(c);
     }
 
-    if (c->end <= c->buffer && c->bits >= 0)
-        return AVERROR_INVALIDDATA;
     /* E. Fading information for previous frame */
     if (s->fade_present && vp8_rac_get(c)) {
         if ((ret = vp7_fade_frame(s ,c)) < 0)
@@ -1173,10 +1171,10 @@ void decode_mb_mode(VP8Context *s, VP8mvbounds *mv_bounds,
                     uint8_t *segment, uint8_t *ref, int layout, int is_vp7)
 {
     VP56RangeCoder *c = &s->c;
-    static const char *vp7_feature_name[] = { "q-index",
-                                              "lf-delta",
-                                              "partial-golden-update",
-                                              "blit-pitch" };
+    static const char * const vp7_feature_name[] = { "q-index",
+                                                     "lf-delta",
+                                                     "partial-golden-update",
+                                                     "blit-pitch" };
     if (is_vp7) {
         int i;
         *segment = 0;
