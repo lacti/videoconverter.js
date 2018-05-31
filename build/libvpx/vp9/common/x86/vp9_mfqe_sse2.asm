@@ -12,6 +12,8 @@
 ;  TODO(jackychen): Find a way to fix the duplicate.
 %include "vpx_ports/x86_abi_support.asm"
 
+SECTION .text
+
 ;void vp9_filter_by_weight16x16_sse2
 ;(
 ;    unsigned char *src,
@@ -46,7 +48,7 @@ sym(vp9_filter_by_weight16x16_sse2):
     mov         rcx, 16                     ; loop count
     pxor        xmm6, xmm6
 
-.combine
+.combine:
     movdqa      xmm2, [rax]
     movdqa      xmm4, [rdx]
     add         rax, rsi
@@ -123,7 +125,7 @@ sym(vp9_filter_by_weight8x8_sse2):
     mov         rcx, 8                      ; loop count
     pxor        xmm4, xmm4
 
-.combine
+.combine:
     movq        xmm2, [rax]
     movq        xmm3, [rdx]
     add         rax, rsi
@@ -190,7 +192,7 @@ sym(vp9_variance_and_sad_16x16_sse2):
 
     ; Because we're working with the actual output frames
     ; we can't depend on any kind of data alignment.
-.accumulate
+.accumulate:
     movdqa      xmm0, [rax]                 ; src1
     movdqa      xmm1, [rdx]                 ; src2
     add         rax, rcx                    ; src1 + stride1

@@ -8,7 +8,6 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-
 #ifndef VP9_ENCODER_VP9_AQ_CYCLICREFRESH_H_
 #define VP9_ENCODER_VP9_AQ_CYCLICREFRESH_H_
 
@@ -23,9 +22,9 @@ extern "C" {
 
 // The segment ids used in cyclic refresh: from base (no boost) to increasing
 // boost (higher delta-qp).
-#define CR_SEGMENT_ID_BASE    0
-#define CR_SEGMENT_ID_BOOST1  1
-#define CR_SEGMENT_ID_BOOST2  2
+#define CR_SEGMENT_ID_BASE 0
+#define CR_SEGMENT_ID_BOOST1 1
+#define CR_SEGMENT_ID_BOOST2 2
 
 // Maximum rate target ratio for setting segment delta-qp.
 #define CR_MAX_RATE_TARGET_RATIO 4.0
@@ -67,6 +66,8 @@ struct CYCLIC_REFRESH {
   double low_content_avg;
   int qindex_delta[3];
   int reduce_refresh;
+  double weight_segment;
+  int apply_cyclic_refresh;
 };
 
 struct VP9_COMP;
@@ -91,8 +92,8 @@ int vp9_cyclic_refresh_rc_bits_per_mb(const struct VP9_COMP *cpi, int i,
 // check if we should reset the segment_id, and update the cyclic_refresh map
 // and segmentation map.
 void vp9_cyclic_refresh_update_segment(struct VP9_COMP *const cpi,
-                                       MODE_INFO *const mi,
-                                       int mi_row, int mi_col, BLOCK_SIZE bsize,
+                                       MODE_INFO *const mi, int mi_row,
+                                       int mi_col, BLOCK_SIZE bsize,
                                        int64_t rate, int64_t dist, int skip,
                                        struct macroblock_plane *const p);
 
@@ -105,14 +106,14 @@ void vp9_cyclic_refresh_update_sb_postencode(struct VP9_COMP *const cpi,
 // refresh sb_index, and target number of blocks to be refreshed.
 void vp9_cyclic_refresh_update__map(struct VP9_COMP *const cpi);
 
-// Update the actual number of blocks that were applied the segment delta q.
+// From the just encoded frame: update the actual number of blocks that were
+// applied the segment delta q, and the amount of low motion in the frame.
+// Also check conditions for forcing golden update, or preventing golden
+// update if the period is up.
 void vp9_cyclic_refresh_postencode(struct VP9_COMP *const cpi);
 
 // Set golden frame update interval, for non-svc 1 pass CBR mode.
 void vp9_cyclic_refresh_set_golden_update(struct VP9_COMP *const cpi);
-
-// Check if we should not update golden reference, based on past refresh stats.
-void vp9_cyclic_refresh_check_golden_update(struct VP9_COMP *const cpi);
 
 // Set/update global/frame level refresh parameters.
 void vp9_cyclic_refresh_update_parameters(struct VP9_COMP *const cpi);
