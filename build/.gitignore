@@ -1,6 +1,6 @@
 ffmpeg/*.bak
 ffmpeg/doc/examples/
-zlib/ztest*.js
+zlib/ztest*
 zlib/*.lo
 zlib/*.so*
 zlib/*sh
@@ -23,6 +23,4 @@ ffmpeg/libswscale/libswscale.version
 
 # others
 libvpx/libs-generic-gnu.mk.bak
-zlib/ztest23279
-zlib/ztest23279.c
 
