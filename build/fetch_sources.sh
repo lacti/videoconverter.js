@@ -1,6 +1,6 @@
 #!/bin/bash
 
-VERSION=3.3.7
+VERSION=3.4.2
 
 rm -rf ffmpeg
 wget http://ffmpeg.org/releases/ffmpeg-${VERSION}.tar.bz2

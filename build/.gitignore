@@ -1,8 +1,26 @@
 ffmpeg/*.bak
 ffmpeg/doc/examples/
-zlib/ztest*.js
+zlib/ztest*
 zlib/*.lo
 zlib/*.so*
 zlib/*sh
 *.log
+ffmpeg/ffbuild/
+
+# auto generated in ffmpeg 3.4.2
+ffmpeg/.version
+ffmpeg/libavcodec/bsf_list.c
+ffmpeg/libavcodec/libavcodec.version
+ffmpeg/libavdevice/libavdevice.version
+ffmpeg/libavfilter/libavfilter.version
+ffmpeg/libavformat/libavformat.version
+ffmpeg/libavformat/protocol_list.c
+ffmpeg/libavutil/avconfig.h
+ffmpeg/libavutil/ffversion.h
+ffmpeg/libavutil/libavutil.version
+ffmpeg/libswresample/libswresample.version
+ffmpeg/libswscale/libswscale.version
+
+# others
+libvpx/libs-generic-gnu.mk.bak
 

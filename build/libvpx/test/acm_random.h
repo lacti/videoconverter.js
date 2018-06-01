@@ -11,6 +11,10 @@
 #ifndef TEST_ACM_RANDOM_H_
 #define TEST_ACM_RANDOM_H_
 
+#include <assert.h>
+
+#include <limits>
+
 #include "third_party/googletest/src/include/gtest/gtest.h"
 
 #include "vpx/vpx_integer.h"
@@ -23,9 +27,7 @@ class ACMRandom {
 
   explicit ACMRandom(int seed) : random_(seed) {}
 
-  void Reset(int seed) {
-    random_.Reseed(seed);
-  }
+  void Reset(int seed) { random_.Reseed(seed); }
   uint16_t Rand16(void) {
     const uint32_t value =
         random_.Generate(testing::internal::Random::kMaxRange);
@@ -52,17 +54,18 @@ class ACMRandom {
     return r < 128 ? r << 4 : r >> 4;
   }
 
-  int PseudoUniform(int range) {
+  uint32_t RandRange(const uint32_t range) {
+    // testing::internal::Random::Generate provides values in the range
+    // testing::internal::Random::kMaxRange.
+    assert(range <= testing::internal::Random::kMaxRange);
     return random_.Generate(range);
   }
 
-  int operator()(int n) {
-    return PseudoUniform(n);
-  }
+  int PseudoUniform(int range) { return random_.Generate(range); }
 
-  static int DeterministicSeed(void) {
-    return 0xbaba;
-  }
+  int operator()(int n) { return PseudoUniform(n); }
+
+  static int DeterministicSeed(void) { return 0xbaba; }
 
  private:
   testing::internal::Random random_;

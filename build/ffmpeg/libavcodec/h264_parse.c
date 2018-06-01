@@ -82,11 +82,8 @@ int ff_h264_pred_weight_table(GetBitContext *gb, const SPS *sps,
                         pwt->chroma_weight[i][list][j][0] = get_se_golomb(gb);
                         pwt->chroma_weight[i][list][j][1] = get_se_golomb(gb);
                         if ((int8_t)pwt->chroma_weight[i][list][j][0] != pwt->chroma_weight[i][list][j][0] ||
-                            (int8_t)pwt->chroma_weight[i][list][j][1] != pwt->chroma_weight[i][list][j][1]) {
-                            pwt->chroma_weight[i][list][j][0] = chroma_def;
-                            pwt->chroma_weight[i][list][j][1] = 0;
+                            (int8_t)pwt->chroma_weight[i][list][j][1] != pwt->chroma_weight[i][list][j][1])
                             goto out_range_weight;
-                        }
                         if (pwt->chroma_weight[i][list][j][0] != chroma_def ||
                             pwt->chroma_weight[i][list][j][1] != 0) {
                             pwt->use_weight_chroma        = 1;
@@ -428,10 +425,9 @@ static int decode_extradata_ps_mp4(const uint8_t *buf, int buf_size, H264ParamSe
         escaped_buf_size = bytestream2_tell_p(&pbc);
         AV_WB16(escaped_buf, escaped_buf_size - 2);
 
-        ret = decode_extradata_ps(escaped_buf, escaped_buf_size, ps, 1, logctx);
+        (void)decode_extradata_ps(escaped_buf, escaped_buf_size, ps, 1, logctx);
+        // lorex.mp4 decodes ok even with extradata decoding failing
         av_freep(&escaped_buf);
-        if (ret < 0)
-            return ret;
     }
 
     return 0;

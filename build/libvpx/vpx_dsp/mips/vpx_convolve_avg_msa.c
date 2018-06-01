@@ -8,10 +8,11 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
+#include "./vpx_dsp_rtcd.h"
 #include "vpx_dsp/mips/macros_msa.h"
 
-static void avg_width4_msa(const uint8_t *src, int32_t src_stride,
-                           uint8_t *dst, int32_t dst_stride, int32_t height) {
+static void avg_width4_msa(const uint8_t *src, int32_t src_stride, uint8_t *dst,
+                           int32_t dst_stride, int32_t height) {
   int32_t cnt;
   uint32_t out0, out1, out2, out3;
   v16u8 src0, src1, src2, src3;
@@ -24,8 +25,8 @@ static void avg_width4_msa(const uint8_t *src, int32_t src_stride,
 
       LD_UB4(dst, dst_stride, dst0, dst1, dst2, dst3);
 
-      AVER_UB4_UB(src0, dst0, src1, dst1, src2, dst2, src3, dst3,
-                  dst0, dst1, dst2, dst3);
+      AVER_UB4_UB(src0, dst0, src1, dst1, src2, dst2, src3, dst3, dst0, dst1,
+                  dst2, dst3);
 
       out0 = __msa_copy_u_w((v4i32)dst0, 0);
       out1 = __msa_copy_u_w((v4i32)dst1, 0);
@@ -53,8 +54,8 @@ static void avg_width4_msa(const uint8_t *src, int32_t src_stride,
   }
 }
 
-static void avg_width8_msa(const uint8_t *src, int32_t src_stride,
-                           uint8_t *dst, int32_t dst_stride, int32_t height) {
+static void avg_width8_msa(const uint8_t *src, int32_t src_stride, uint8_t *dst,
+                           int32_t dst_stride, int32_t height) {
   int32_t cnt;
   uint64_t out0, out1, out2, out3;
   v16u8 src0, src1, src2, src3;
@@ -65,8 +66,8 @@ static void avg_width8_msa(const uint8_t *src, int32_t src_stride,
     src += (4 * src_stride);
     LD_UB4(dst, dst_stride, dst0, dst1, dst2, dst3);
 
-    AVER_UB4_UB(src0, dst0, src1, dst1, src2, dst2, src3, dst3,
-                dst0, dst1, dst2, dst3);
+    AVER_UB4_UB(src0, dst0, src1, dst1, src2, dst2, src3, dst3, dst0, dst1,
+                dst2, dst3);
 
     out0 = __msa_copy_u_d((v2i64)dst0, 0);
     out1 = __msa_copy_u_d((v2i64)dst1, 0);
@@ -88,10 +89,10 @@ static void avg_width16_msa(const uint8_t *src, int32_t src_stride,
     src += (8 * src_stride);
     LD_UB8(dst, dst_stride, dst0, dst1, dst2, dst3, dst4, dst5, dst6, dst7);
 
-    AVER_UB4_UB(src0, dst0, src1, dst1, src2, dst2, src3, dst3,
-                dst0, dst1, dst2, dst3);
-    AVER_UB4_UB(src4, dst4, src5, dst5, src6, dst6, src7, dst7,
-                dst4, dst5, dst6, dst7);
+    AVER_UB4_UB(src0, dst0, src1, dst1, src2, dst2, src3, dst3, dst0, dst1,
+                dst2, dst3);
+    AVER_UB4_UB(src4, dst4, src5, dst5, src6, dst6, src7, dst7, dst4, dst5,
+                dst6, dst7);
     ST_UB8(dst0, dst1, dst2, dst3, dst4, dst5, dst6, dst7, dst, dst_stride);
     dst += (8 * dst_stride);
   }
@@ -120,14 +121,14 @@ static void avg_width32_msa(const uint8_t *src, int32_t src_stride,
     LD_UB4(dst_dup + 16, dst_stride, dst9, dst11, dst13, dst15);
     dst_dup += (4 * dst_stride);
 
-    AVER_UB4_UB(src0, dst0, src1, dst1, src2, dst2, src3, dst3,
-                dst0, dst1, dst2, dst3);
-    AVER_UB4_UB(src4, dst4, src5, dst5, src6, dst6, src7, dst7,
-                dst4, dst5, dst6, dst7);
-    AVER_UB4_UB(src8, dst8, src9, dst9, src10, dst10, src11, dst11,
-                dst8, dst9, dst10, dst11);
-    AVER_UB4_UB(src12, dst12, src13, dst13, src14, dst14, src15, dst15,
-                dst12, dst13, dst14, dst15);
+    AVER_UB4_UB(src0, dst0, src1, dst1, src2, dst2, src3, dst3, dst0, dst1,
+                dst2, dst3);
+    AVER_UB4_UB(src4, dst4, src5, dst5, src6, dst6, src7, dst7, dst4, dst5,
+                dst6, dst7);
+    AVER_UB4_UB(src8, dst8, src9, dst9, src10, dst10, src11, dst11, dst8, dst9,
+                dst10, dst11);
+    AVER_UB4_UB(src12, dst12, src13, dst13, src14, dst14, src15, dst15, dst12,
+                dst13, dst14, dst15);
 
     ST_UB4(dst0, dst2, dst4, dst6, dst, dst_stride);
     ST_UB4(dst1, dst3, dst5, dst7, dst + 16, dst_stride);
@@ -166,14 +167,14 @@ static void avg_width64_msa(const uint8_t *src, int32_t src_stride,
     LD_UB4(dst_dup, 16, dst12, dst13, dst14, dst15);
     dst_dup += dst_stride;
 
-    AVER_UB4_UB(src0, dst0, src1, dst1, src2, dst2, src3, dst3,
-                dst0, dst1, dst2, dst3);
-    AVER_UB4_UB(src4, dst4, src5, dst5, src6, dst6, src7, dst7,
-                dst4, dst5, dst6, dst7);
-    AVER_UB4_UB(src8, dst8, src9, dst9, src10, dst10, src11, dst11,
-                dst8, dst9, dst10, dst11);
-    AVER_UB4_UB(src12, dst12, src13, dst13, src14, dst14, src15, dst15,
-                dst12, dst13, dst14, dst15);
+    AVER_UB4_UB(src0, dst0, src1, dst1, src2, dst2, src3, dst3, dst0, dst1,
+                dst2, dst3);
+    AVER_UB4_UB(src4, dst4, src5, dst5, src6, dst6, src7, dst7, dst4, dst5,
+                dst6, dst7);
+    AVER_UB4_UB(src8, dst8, src9, dst9, src10, dst10, src11, dst11, dst8, dst9,
+                dst10, dst11);
+    AVER_UB4_UB(src12, dst12, src13, dst13, src14, dst14, src15, dst15, dst12,
+                dst13, dst14, dst15);
 
     ST_UB4(dst0, dst1, dst2, dst3, dst, 16);
     dst += dst_stride;
@@ -188,13 +189,14 @@ static void avg_width64_msa(const uint8_t *src, int32_t src_stride,
 
 void vpx_convolve_avg_msa(const uint8_t *src, ptrdiff_t src_stride,
                           uint8_t *dst, ptrdiff_t dst_stride,
-                          const int16_t *filter_x, int32_t filter_x_stride,
-                          const int16_t *filter_y, int32_t filter_y_stride,
+                          const InterpKernel *filter, int x0_q4,
+                          int32_t x_step_q4, int y0_q4, int32_t y_step_q4,
                           int32_t w, int32_t h) {
-  (void)filter_x;
-  (void)filter_y;
-  (void)filter_x_stride;
-  (void)filter_y_stride;
+  (void)filter;
+  (void)x0_q4;
+  (void)x_step_q4;
+  (void)y0_q4;
+  (void)y_step_q4;
 
   switch (w) {
     case 4: {

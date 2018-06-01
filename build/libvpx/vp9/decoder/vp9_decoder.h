@@ -21,7 +21,6 @@
 #include "vp9/common/vp9_thread_common.h"
 #include "vp9/common/vp9_onyxc_int.h"
 #include "vp9/common/vp9_ppflags.h"
-#include "vp9/decoder/vp9_dthread.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,13 +52,10 @@ typedef struct VP9Decoder {
 
   int refresh_frame_flags;
 
-  int frame_parallel_decode;  // frame-based threading.
-
   // TODO(hkuang): Combine this with cur_buf in macroblockd as they are
   // the same.
-  RefCntBuffer *cur_buf;   //  Current decoding frame buffer.
+  RefCntBuffer *cur_buf;  //  Current decoding frame buffer.
 
-  VPxWorker *frame_worker_owner;   // frame_worker that owns this pbi.
   VPxWorker lf_worker;
   VPxWorker *tile_workers;
   TileWorkerData *tile_worker_data;
@@ -74,12 +70,12 @@ typedef struct VP9Decoder {
 
   int max_threads;
   int inv_tile_order;
-  int need_resync;  // wait for key/intra-only frame.
+  int need_resync;   // wait for key/intra-only frame.
   int hold_ref_buf;  // hold the reference buffer.
 } VP9Decoder;
 
-int vp9_receive_compressed_data(struct VP9Decoder *pbi,
-                                size_t size, const uint8_t **dest);
+int vp9_receive_compressed_data(struct VP9Decoder *pbi, size_t size,
+                                const uint8_t **dest);
 
 int vp9_get_raw_frame(struct VP9Decoder *pbi, YV12_BUFFER_CONFIG *sd,
                       vp9_ppflags_t *flags);
@@ -93,8 +89,7 @@ vpx_codec_err_t vp9_set_reference_dec(VP9_COMMON *cm,
                                       YV12_BUFFER_CONFIG *sd);
 
 static INLINE uint8_t read_marker(vpx_decrypt_cb decrypt_cb,
-                                  void *decrypt_state,
-                                  const uint8_t *data) {
+                                  void *decrypt_state, const uint8_t *data) {
   if (decrypt_cb) {
     uint8_t marker;
     decrypt_cb(decrypt_state, data, &marker, 1);
@@ -105,8 +100,7 @@ static INLINE uint8_t read_marker(vpx_decrypt_cb decrypt_cb,
 
 // This function is exposed for use in tests, as well as the inlined function
 // "read_marker".
-vpx_codec_err_t vp9_parse_superframe_index(const uint8_t *data,
-                                           size_t data_sz,
+vpx_codec_err_t vp9_parse_superframe_index(const uint8_t *data, size_t data_sz,
                                            uint32_t sizes[8], int *count,
                                            vpx_decrypt_cb decrypt_cb,
                                            void *decrypt_state);
@@ -123,9 +117,10 @@ static INLINE void decrease_ref_count(int idx, RefCntBuffer *const frame_bufs,
     // But the private buffer is not set up until finish decoding header.
     // So any error happens during decoding header, the frame_bufs will not
     // have valid priv buffer.
-    if (frame_bufs[idx].ref_count == 0 &&
+    if (!frame_bufs[idx].released && frame_bufs[idx].ref_count == 0 &&
         frame_bufs[idx].raw_frame_buffer.priv) {
       pool->release_fb_cb(pool->cb_priv, &frame_bufs[idx].raw_frame_buffer);
+      frame_bufs[idx].released = 1;
     }
   }
 }

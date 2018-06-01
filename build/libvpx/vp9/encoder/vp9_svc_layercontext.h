@@ -35,7 +35,7 @@ typedef struct {
   int is_key_frame;
   int frames_from_key_frame;
   FRAME_TYPE last_frame_type;
-  struct lookahead_entry  *alt_ref_source;
+  struct lookahead_entry *alt_ref_source;
   int alt_ref_idx;
   int gold_ref_idx;
   int has_alt_frame;
@@ -46,9 +46,10 @@ typedef struct {
   signed char *map;
   uint8_t *last_coded_q_map;
   uint8_t *consec_zero_mv;
+  uint8_t speed;
 } LAYER_CONTEXT;
 
-typedef struct {
+typedef struct SVC {
   int spatial_layer_id;
   int temporal_layer_id;
   int number_spatial_layers;
@@ -59,11 +60,7 @@ typedef struct {
   int rc_drop_superframe;
 
   // Workaround for multiple frame contexts
-  enum {
-    ENCODED = 0,
-    ENCODING,
-    NEED_TO_ENCODE
-  }encode_empty_frame_state;
+  enum { ENCODED = 0, ENCODING, NEED_TO_ENCODE } encode_empty_frame_state;
   struct lookahead_entry empty_frame;
   int encode_intra_empty_frame;
 
@@ -72,6 +69,8 @@ typedef struct {
   YV12_BUFFER_CONFIG scaled_frames[MAX_LAG_BUFFERS];
   // Temp buffer used for 2-stage down-sampling, for real-time mode.
   YV12_BUFFER_CONFIG scaled_temp;
+  int scaled_one_half;
+  int scaled_temp_is_alloc;
 
   // Layer context used for rate control in one pass temporal CBR mode or
   // two pass spatial mode.
@@ -88,7 +87,20 @@ typedef struct {
   int ref_frame_index[REF_FRAMES];
   int force_zero_mode_spatial_ref;
   int current_superframe;
+  int non_reference_frame;
   int use_base_mv;
+  // Used to control the downscaling filter for source scaling, for 1 pass CBR.
+  // downsample_filter_phase: = 0 will do sub-sampling (no weighted average),
+  // = 8 will center the target pixel and get a symmetric averaging filter.
+  // downsample_filter_type: 4 filters may be used: eighttap_regular,
+  // eighttap_smooth, eighttap_sharp, and bilinear.
+  INTERP_FILTER downsample_filter_type[VPX_SS_MAX_LAYERS];
+  int downsample_filter_phase[VPX_SS_MAX_LAYERS];
+
+  BLOCK_SIZE *prev_partition_svc;
+  int mi_stride[VPX_MAX_LAYERS];
+
+  int first_layer_denoise;
 } SVC;
 
 struct VP9_COMP;
@@ -118,6 +130,10 @@ void vp9_save_layer_context(struct VP9_COMP *const cpi);
 // Initialize second pass rc for spatial svc.
 void vp9_init_second_pass_spatial_svc(struct VP9_COMP *cpi);
 
+void get_layer_resolution(const int width_org, const int height_org,
+                          const int num, const int den, int *width_out,
+                          int *height_out);
+
 // Increment number of video frames in layer
 void vp9_inc_frame_in_layer(struct VP9_COMP *const cpi);
 
@@ -137,6 +153,8 @@ int vp9_one_pass_cbr_svc_start_layer(struct VP9_COMP *const cpi);
 void vp9_free_svc_cyclic_refresh(struct VP9_COMP *const cpi);
 
 void vp9_svc_reset_key_frame(struct VP9_COMP *const cpi);
+
+void vp9_svc_check_reset_layer_rc_flag(struct VP9_COMP *const cpi);
 
 #ifdef __cplusplus
 }  // extern "C"

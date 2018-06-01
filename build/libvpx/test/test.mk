@@ -1,4 +1,5 @@
 LIBVPX_TEST_SRCS-yes += acm_random.h
+LIBVPX_TEST_SRCS-yes += buffer.h
 LIBVPX_TEST_SRCS-yes += clear_system_state.h
 LIBVPX_TEST_SRCS-yes += codec_factory.h
 LIBVPX_TEST_SRCS-yes += md5_helper.h
@@ -20,6 +21,7 @@ LIBVPX_TEST_SRCS-$(CONFIG_DECODERS)    += ivf_video_source.h
 LIBVPX_TEST_SRCS-$(CONFIG_ENCODERS)    += ../y4minput.h ../y4minput.c
 LIBVPX_TEST_SRCS-$(CONFIG_ENCODERS)    += altref_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_ENCODERS)    += aq_segment_test.cc
+LIBVPX_TEST_SRCS-$(CONFIG_ENCODERS)    += alt_ref_aq_segment_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_ENCODERS)    += datarate_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_ENCODERS)    += encode_api_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_ENCODERS)    += error_resilience_test.cc
@@ -34,10 +36,9 @@ LIBVPX_TEST_SRCS-$(CONFIG_VP8_ENCODER) += cq_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP8_ENCODER) += keyframe_test.cc
 
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_DECODER) += byte_alignment_test.cc
+LIBVPX_TEST_SRCS-$(CONFIG_VP9_DECODER) += decode_svc_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_DECODER) += external_frame_buffer_test.cc
-LIBVPX_TEST_SRCS-$(CONFIG_VP9_DECODER) += invalid_file_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_DECODER) += user_priv_test.cc
-LIBVPX_TEST_SRCS-$(CONFIG_VP9_DECODER) += vp9_frame_parallel_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += active_map_refresh_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += active_map_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += borders_test.cc
@@ -46,6 +47,7 @@ LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += frame_size_tests.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += vp9_lossless_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += vp9_end_to_end_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += vp9_ethread_test.cc
+LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += vp9_motion_vector_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += level_test.cc
 
 LIBVPX_TEST_SRCS-yes                   += decode_test_driver.cc
@@ -88,6 +90,11 @@ ifeq ($(CONFIG_ENCODE_PERF_TESTS)$(CONFIG_VP9_ENCODER), yesyes)
 LIBVPX_TEST_SRCS-yes += encode_perf_test.cc
 endif
 
+## Multi-codec blackbox tests.
+ifeq ($(findstring yes,$(CONFIG_VP8_DECODER)$(CONFIG_VP9_DECODER)), yes)
+LIBVPX_TEST_SRCS-yes += invalid_file_test.cc
+endif
+
 ##
 ## WHITE BOX TESTS
 ##
@@ -114,8 +121,9 @@ LIBVPX_TEST_SRCS-$(CONFIG_VP8_ENCODER) += variance_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP8_ENCODER) += vp8_fdct4x4_test.cc
 
 LIBVPX_TEST_SRCS-yes                   += idct_test.cc
-LIBVPX_TEST_SRCS-yes                   += sixtap_predict_test.cc
+LIBVPX_TEST_SRCS-yes                   += predict_test.cc
 LIBVPX_TEST_SRCS-yes                   += vpx_scale_test.cc
+LIBVPX_TEST_SRCS-yes                   += vpx_scale_test.h
 
 ifeq ($(CONFIG_VP8_ENCODER)$(CONFIG_TEMPORAL_DENOISING),yesyes)
 LIBVPX_TEST_SRCS-$(HAVE_SSE2) += vp8_denoiser_sse2_test.cc
@@ -138,19 +146,25 @@ LIBVPX_TEST_SRCS-yes                   += vp9_encoder_parms_get_to_decoder.cc
 endif
 
 LIBVPX_TEST_SRCS-yes                   += convolve_test.cc
-LIBVPX_TEST_SRCS-yes                   += lpf_8_test.cc
+LIBVPX_TEST_SRCS-yes                   += lpf_test.cc
 LIBVPX_TEST_SRCS-yes                   += vp9_intrapred_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_DECODER) += vp9_decrypt_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_DECODER) += vp9_thread_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += avg_test.cc
+LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += comp_avg_pred_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += dct16x16_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += dct32x32_test.cc
-LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += fdct4x4_test.cc
+LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += dct_partial_test.cc
+LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += dct_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += fdct8x8_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += hadamard_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += minmax_test.cc
+LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += vp9_scale_test.cc
+ifneq ($(CONFIG_REALTIME_ONLY),yes)
+LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += temporal_filter_test.cc
+endif
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += variance_test.cc
-LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += vp9_error_block_test.cc
+LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += vp9_block_error_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += vp9_quantize_test.cc
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += vp9_subtract_test.cc
 
@@ -161,7 +175,7 @@ LIBVPX_TEST_SRCS-$(CONFIG_INTERNAL_STATS) += consistency_test.cc
 endif
 
 ifeq ($(CONFIG_VP9_ENCODER)$(CONFIG_VP9_TEMPORAL_DENOISING),yesyes)
-LIBVPX_TEST_SRCS-$(HAVE_SSE2) += vp9_denoiser_sse2_test.cc
+LIBVPX_TEST_SRCS-yes += vp9_denoiser_test.cc
 endif
 LIBVPX_TEST_SRCS-$(CONFIG_VP9_ENCODER) += vp9_arf_freq_test.cc
 
@@ -170,6 +184,7 @@ endif # VP9
 ## Multi-codec / unconditional whitebox tests.
 
 LIBVPX_TEST_SRCS-$(CONFIG_ENCODERS) += sad_test.cc
+LIBVPX_TEST_SRCS-$(CONFIG_ENCODERS) += sum_squares_test.cc
 
 TEST_INTRA_PRED_SPEED_SRCS-yes := test_intra_pred_speed.cc
 TEST_INTRA_PRED_SPEED_SRCS-yes += ../md5_utils.h ../md5_utils.c

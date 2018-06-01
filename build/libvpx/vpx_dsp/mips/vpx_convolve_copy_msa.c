@@ -9,6 +9,7 @@
  */
 
 #include <string.h>
+#include "./vpx_dsp_rtcd.h"
 #include "vpx_dsp/mips/macros_msa.h"
 
 static void copy_width8_msa(const uint8_t *src, int32_t src_stride,
@@ -105,12 +106,12 @@ static void copy_16multx8mult_msa(const uint8_t *src, int32_t src_stride,
     dst_tmp = dst;
 
     for (loop_cnt = (height >> 3); loop_cnt--;) {
-      LD_UB8(src_tmp, src_stride,
-             src0, src1, src2, src3, src4, src5, src6, src7);
+      LD_UB8(src_tmp, src_stride, src0, src1, src2, src3, src4, src5, src6,
+             src7);
       src_tmp += (8 * src_stride);
 
-      ST_UB8(src0, src1, src2, src3, src4, src5, src6, src7,
-             dst_tmp, dst_stride);
+      ST_UB8(src0, src1, src2, src3, src4, src5, src6, src7, dst_tmp,
+             dst_stride);
       dst_tmp += (8 * dst_stride);
     }
 
@@ -198,13 +199,14 @@ static void copy_width64_msa(const uint8_t *src, int32_t src_stride,
 
 void vpx_convolve_copy_msa(const uint8_t *src, ptrdiff_t src_stride,
                            uint8_t *dst, ptrdiff_t dst_stride,
-                           const int16_t *filter_x, int32_t filter_x_stride,
-                           const int16_t *filter_y, int32_t filter_y_stride,
+                           const InterpKernel *filter, int x0_q4,
+                           int32_t x_step_q4, int y0_q4, int32_t y_step_q4,
                            int32_t w, int32_t h) {
-  (void)filter_x;
-  (void)filter_y;
-  (void)filter_x_stride;
-  (void)filter_y_stride;
+  (void)filter;
+  (void)x0_q4;
+  (void)x_step_q4;
+  (void)y0_q4;
+  (void)y_step_q4;
 
   switch (w) {
     case 4: {
