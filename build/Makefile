@@ -1,7 +1,5 @@
 DIST_DIR=$(shell pwd)/dist
-
-test:
-	stat $(DIST_DIR)
+PKG_CONFIG_DIR=$(shell dirname "$(shell which emcc)")/system/lib/pkgconfig
 
 all: build install
 
@@ -51,6 +49,7 @@ build-openh264:
 	cd openh264 && \
 		emmake make OS=linux ARCH=asmjs CFLAGS_OPT=-O3 -j && \
 		emmake make OS=linux ARCH=asmjs PREFIX=$(DIST_DIR) install-static && \
+		cp $(DIST_DIR)/lib/pkgconfig/openh264.pc $(PKG_CONFIG_DIR)
 		cd ..
 
 clean-openh264:
