@@ -90,18 +90,30 @@ configure-ffmpeg:
 
 rebuild-ffmpeg: clean-ffmpeg configure-ffmpeg build-ffmpeg
 
-build: build-zlib build-vpx build-openh264 build-ffmpeg
+prepare-libs: build-zlib build-vpx build-openh264 build-ffmpeg
 	cd dist && \
 		rm -vf *.bc && \
 		cp lib/libvpx.a libvpx.bc && \
 		cp lib/libopenh264.a libopenh264.bc && \
 		cp lib/libz.a libz.bc && \
 		cp ../ffmpeg/ffmpeg ffmpeg.bc && \
+		cd ..
+
+build: prepare-libs
+	cd dist && \
 		emcc -s TOTAL_MEMORY=1073741824 -O3 ffmpeg.bc libvpx.bc libopenh264.bc libz.bc -o ../ffmpeg.js --pre-js ../ffmpeg_pre.js --post-js ../ffmpeg_post.js && \
 		cd ..
 
-install:
+build-wasm: prepare-libs
+	cd dist && \
+		emcc -s TOTAL_MEMORY=1073741824 -O3 ffmpeg.bc libvpx.bc libopenh264.bc libz.bc -o ../ffmpeg.js --pre-js ../ffmpeg_pre.js --post-js ../ffmpeg_post.js -s WASM=1 -s "BINARYEN_METHOD='native-wasm'" && \
+		cd ..
+
+install: build
 	cp ffmpeg.js* ../demo
+
+install-wasm: build-wasm
+	cp ffmpeg.wasm* ../demo
 
 clean-dist:
 	rm -rf dist && \
