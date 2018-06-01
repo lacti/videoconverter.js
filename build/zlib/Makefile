@@ -45,7 +45,7 @@ TAR=tar
 SHELL=/bin/sh
 EXE=
 
-prefix =/data/vc/videoconverter.js/build/zlib/../dist
+prefix =/data/vc/videoconverter.js/build/dist
 exec_prefix =${prefix}
 libdir =${exec_prefix}/lib
 sharedlibdir =${libdir}
